@@ -16,7 +16,7 @@ const initialState:IState = {
     favorites: []
 }
 
-export const Store = createContext<IState>(initialState);
+export const Store = createContext<IState | any>(initialState);
 
 
 
@@ -33,7 +33,7 @@ function reducer(state: IState,action:IAction) {
     // pass
 }
 
-export function StoreProvider(props): JSX.Element{
+export function StoreProvider(props:any): JSX.Element{
     
     const [state, dispatch] = useReducer(reducer, initialState)
 
