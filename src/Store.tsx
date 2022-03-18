@@ -14,16 +14,21 @@ export interface IEpisode {
 export enum Actions {
   FETCH_DATA,
   SET_DATA,
-  SET_FAV_DATA,
+  ADD_FAV_DATA,
+  REMOVE_FAVE_DATA,
 }
 
-type ActionType =
+export type ActionType =
   | { type: Actions.FETCH_DATA; payload: [] }
   | { type: Actions.SET_DATA; payload: IEpisode }
-  | { type: Actions.SET_FAV_DATA; payload: IEpisode };
+  | { type: Actions.ADD_FAV_DATA; payload: IEpisode }
+  | { type: Actions.REMOVE_FAVE_DATA; payload: IEpisode };
 
+type StoreContextProviderProps = {
+  children: React.ReactNode;
+};
 interface IState {
-  episodes: [];
+  episodes: IEpisode[];
   favorites: IEpisode[];
 }
 
@@ -33,9 +38,9 @@ const initialState: IState = {
   favorites: [],
 };
 
-export const Store = createContext<IState>(initialState);
+export const Store = createContext(initialState);
 
-function reducer(state: IState, action: ActionType):IState {
+function reducer(state: IState = initialState, action: ActionType): IState {
   switch (action.type) {
     case Actions.FETCH_DATA:
       return {
@@ -43,7 +48,13 @@ function reducer(state: IState, action: ActionType):IState {
         episodes: action.payload,
       };
 
-    case Actions.SET_FAV_DATA:
+    case Actions.ADD_FAV_DATA:
+      return {
+        ...state,
+        favorites: [...state.favorites, action.payload],
+      };
+
+    case Actions.REMOVE_FAVE_DATA:
       return {
         ...state,
         favorites: [...state.favorites, action.payload],
@@ -54,13 +65,11 @@ function reducer(state: IState, action: ActionType):IState {
   }
 }
 
-export function StoreProvider(props): JSX.Element {
+export function StoreProvider({
+  children,
+}: StoreContextProviderProps): JSX.Element {
   const [state, dispatch] = useReducer(reducer, initialState);
-
   return (
-    <Store.Provider value={{ state, dispatch }}>
-      {' '}
-      {props.children}{' '}
-    </Store.Provider>
+    <Store.Provider value={{ state, dispatch }}> {children} </Store.Provider>
   );
 }

@@ -1,18 +1,19 @@
 import React, { useCallback, useContext, useEffect } from 'react';
 import './App.css';
-import { Actions, IEpisode, Store} from './Store';
+import { Actions, ActionType, IEpisode, Store} from './Store';
 
 
 
 function App() {
   const { state, dispatch } = useContext(Store);
 
-  const fetchDataAction = useCallback( async () => {
+  const fetchDataAction = useCallback(
+     async () => {
     const url =
     'https://api.tvmaze.com/singlesearch/shows?q=morty&embed=episodes';
   const response = await fetch(url);
   const data = await response.json();
-  console.log('DATA', data);
+  // console.log('DATA', data);
 
   return dispatch({
     type: Actions.FETCH_DATA,
@@ -51,6 +52,24 @@ function App() {
 
   // console.log(state);
 
+  const toggleFavAction = (episode: IEpisode) => {
+    const alreadyInFav = state.favorites.includes(episode)
+    let dispatchObj = {
+      type: Actions.ADD_FAV_DATA,
+      payload: episode
+    }
+    if(alreadyInFav) {
+      const favWithoutEpisode = state.favorites.filter((fav:IEpisode) => fav.id !== episode.id)
+      dispatchObj = {
+        type: Actions.ADD_FAV_DATA,
+        payload: favWithoutEpisode
+      }
+    }
+    dispatch(dispatchObj)
+
+    console.log(state);
+    
+  }
   return (
     <div className='App'>
       <header className='header'>
@@ -65,6 +84,7 @@ function App() {
               <div>{episode.name}</div>
               <section>
                 Season:{episode.season} Number: {episode.number}
+                <button type='button' onClick={() => toggleFavAction(episode)}>Add to Favorite</button>
               </section>
             </section>
           );
